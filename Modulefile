@@ -1,5 +1,5 @@
 name          'example42-mariadb'
-version       '3.0.0'
+version       '3.0.0-alpha1'
 source        'https://github.com/example42/puppet-mariadb'
 author        'Alessandro Franceschi'
 license       'Apache License, Version 2.0'

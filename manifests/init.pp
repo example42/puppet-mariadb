@@ -11,10 +11,11 @@
 #
 class mariadb (
 
-  $ensure                    = 'present',
-  $version                   = undef,
+  $galera_install            = false,
+  $version                   = '10.0',
 
-  $package_name              = $mariadb::params::package_name,
+  $package_name              = '',
+  $package_ensure            = 'present',
 
   $service_name              = $mariadb::params::service_name,
   $service_ensure            = 'running',
@@ -34,8 +35,7 @@ class mariadb (
   $config_dir_purge          = false,
   $config_dir_recurse        = true,
 
-  $dependency_class          = undef,
-  $my_class                  = undef,
+  $repo_class                = 'mariadb::repo',
 
   $monitor_class             = undef,
   $monitor_options_hash      = { } ,
@@ -53,7 +53,7 @@ class mariadb (
 
   # Class variables validation and management
 
-  validate_re($ensure, ['present','absent'], 'Valid values: present, absent.')
+  validate_bool($galera_install)
   validate_bool($service_enable)
   validate_bool($config_dir_recurse)
   validate_bool($config_dir_purge)
@@ -68,9 +68,19 @@ class mariadb (
   $manage_config_file_content = default_content($config_file_content, $config_file_template)
 
   $manage_config_file_notify = pickx($config_file_notify)
-  $manage_package_ensure = pickx($version, $ensure)
+  $manage_package_ensure = pickx($package_ensure)
 
-  if $ensure == 'absent' {
+  $galera_package_name = $galera_install ? {
+    true  => "MariaDB-Galera-server"
+    false => "MariaDB-server"
+  }
+
+  $manage_package_name = $::osfamily {
+    'Debian' => downcase($galera_package_name),
+    default  => $galera_package_name,
+  }
+
+  if $package_ensure == 'absent' {
     $manage_service_enable = undef
     $manage_service_ensure = stopped
     $config_dir_ensure = absent
@@ -86,7 +96,7 @@ class mariadb (
   # Resources managed
 
   if $mariadb::package_name {
-    package { $mariadb::package_name:
+    package { $mariadb::manage_package_name:
       ensure   => $mariadb::manage_package_ensure,
     }
   }

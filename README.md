@@ -1,66 +1,127 @@
-This puppet module skeleton is based on stdmod naming standards.
+#mariadb
 
-It provides:
- - a basic package/service/configration main class
- - a general purpose conf define
- - puppet-lint, rspec, rspec-system tests
+####Table of Contents
 
-The skeleton is based on these excellent works:
+1. [Overview](#overview)
+2. [Module Description](#module-description)
+3. [Setup](#setup)
+    * [Resources managed by mariadb module](#resources-managed-by-mariadb-module)
+    * [Setup requirements](#setup-requirements)
+    * [Beginning with module mariadb](#beginning-with-module-mariadb)
+4. [Usage](#usage)
+5. [Operating Systems Support](#operating-systems-support)
+6. [Development](#development)
 
-https://github.com/garethr/puppet-module-skeleton
+##Overview
 
-https://github.com/spiette/puppet-module-skeleton
+This module installs, manages and configures mariadb.
 
+##Module Description
 
-## Installation
+The module is based on **stdmod** naming standards version 0.9.0.
 
-As a feature, puppet module tool will use ~/.puppet/var/puppet-module/skeleton
-as template for its `generate` command. The files provided here are
-meant to be better templates for use with the puppet module tool.
-
-As we don't want to have our .git files and this README in our skeleton, we export it like this:
-
-    git clone https://github.com/stdmod/puppet-skeleton-standard
-    cd puppet-skeleton-standard
-
-    mkdir -p $HOME/.puppet/var/puppet-module/skeleton
-    rsync -av --delete --exclude '.git' .  $HOME/.puppet/var/puppet-module/skeleton
+Refer to http://github.com/stdmod/ for complete documentation on the common parameters.
 
 
-## Usage
+##Setup
 
-The just generate your new module structure like so:
+###Resources managed by mariadb module
+* This module installs the mariadb package
+* Enables the mariadb service
+* Can manage all the configuration files (by default no file is changed)
 
-    puppet module generate user-module
+###Setup Requirements
+* PuppetLabs stdlib module
+* StdMod stdmod module
+* Puppet version >= 2.7.x
+* Facter version >= 1.6.2
 
-Once you have your module then install the development dependencies:
+###Beginning with module mariadb
 
-    cd user-module
-    bundle install
+To install the package provided by the module just include it:
 
-Now you should have a bunch of rake commands to help with your module
-development:
+        include mariadb
 
-    bundle exec rake -T
-    rake build             # Build puppet module package
-    rake clean             # Clean a built module package
-    rake coverage          # Generate code coverage information
-    rake help              # Display the list of available rake tasks
-    rake lint              # Check puppet manifests with puppet-lint / Run puppet-lint
-    rake spec              # Run spec tests in a clean fixtures directory
-    rake spec:system       # Run system tests
-    rake spec_clean        # Clean up the fixtures directory
-    rake spec_prep         # Create the fixtures directory
-    rake spec_standalone   # Run spec tests on an existing fixtures directory
-    rake spec_system       # Run RSpec code examples
-    rake syntax            # Syntax check Puppet manifests and templates
-    rake syntax:manifests  # Syntax check Puppet manifests
-    rake syntax:templates  # Syntax check Puppet templates
+The main class arguments can be provided either via Hiera (from Puppet 3.x) or direct parameters:
 
-Of particular interst should be:
+        class { 'mariadb':
+          parameter => value,
+        }
 
-* `rake spec` - run unit tests
-* `rake spec:system` - run full system tests (requires vagrant)
-* `rake lint` - checks against the puppet style guide
-* `rake syntax` - to check your have valid puppet and erb syntax
+The module provides also a generic define to manage any mariadb configuration file:
 
+        mariadb::conf { 'sample.conf':
+          content => '# Test',
+        }
+
+
+##Usage
+
+* A common way to use this module involves the management of the main configuration file via a custom template (provided in a custom site module):
+
+        class { 'mariadb':
+          config_file_template => 'site/mariadb/mariadb.conf.erb',
+        }
+
+* You can write custom templates that use setting provided but the config_file_options_hash paramenter
+
+        class { 'mariadb':
+          config_file_template      => 'site/mariadb/mariadb.conf.erb',
+          config_file_options_hash  => {
+            opt  => 'value',
+            opt2 => 'value2',
+          },
+        }
+
+* Use custom source (here an array) for main configuration file. Note that template and source arguments are alternative.
+
+        class { 'mariadb':
+          config_file_source => [ "puppet:///modules/site/mariadb/mariadb.conf-${hostname}" ,
+                                  "puppet:///modules/site/mariadb/mariadb.conf" ],
+        }
+
+
+* Use custom source directory for the whole configuration directory, where present.
+
+        class { 'mariadb':
+          config_dir_source  => 'puppet:///modules/site/mariadb/conf/',
+        }
+
+* Use custom source directory for the whole configuration directory and purge all the local files that are not on the dir.
+  Note: This option can be used to be sure that the content of a directory is exactly the same you expect, but it is desctructive and may remove files.
+
+        class { 'mariadb':
+          config_dir_source => 'puppet:///modules/site/mariadb/conf/',
+          config_dir_purge  => true, # Default: false.
+        }
+
+* Use custom source directory for the whole configuration dir and define recursing policy.
+
+        class { 'mariadb':
+          config_dir_source    => 'puppet:///modules/site/mariadb/conf/',
+          config_dir_recursion => false, # Default: true.
+        }
+
+
+##Operating Systems Support
+
+This is tested on these OS:
+- RedHat osfamily 5 and 6
+- Debian 6 and 7
+- Ubuntu 10.04 and 12.04
+
+
+##Development
+
+Pull requests (PR) and bug reports via GitHub are welcomed.
+
+When submitting PR please follow these quidelines:
+- Provide puppet-lint compliant code
+- If possible provide rspec tests
+- Follow the module style and stdmod naming standards
+
+When submitting bug report please include or link:
+- The Puppet code that triggers the error
+- The output of facter on the system where you try it
+- All the relevant error logs
+- Any other information useful to undestand the context

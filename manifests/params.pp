@@ -4,16 +4,12 @@
 #
 class mariadb::params {
 
-  $package_name = $::osfamily ? {
-    default => 'mariadb',
-  }
-
   $service_name = $::osfamily ? {
     default => 'mariadb',
   }
 
   $config_file_path = $::osfamily ? {
-    default => '/etc/mariadb/mariadb.conf',
+    default => '/etc/mysql/my.cnf',
   }
 
   $config_file_mode = $::osfamily ? {
@@ -29,7 +25,7 @@ class mariadb::params {
   }
 
   $config_dir_path = $::osfamily ? {
-    default => '/etc/mariadb',
+    default => '/etc/mysql',
   }
 
   case $::osfamily {
