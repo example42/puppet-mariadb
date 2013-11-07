@@ -23,7 +23,7 @@ class mariadb (
 
   $config_file_path          = $mariadb::params::config_file_path,
   $config_file_replace       = $mariadb::params::config_file_replace,
-  $config_file_require       = 'Package[mariadb]',
+  $config_file_require       = '',
   $config_file_notify        = 'Service[mariadb]',
   $config_file_source        = undef,
   $config_file_template      = undef,
@@ -71,13 +71,18 @@ class mariadb (
   $manage_package_ensure = pickx($package_ensure)
 
   $galera_package_name = $galera_install ? {
-    true  => "MariaDB-Galera-server"
-    false => "MariaDB-server"
+    true  => "MariaDB-Galera-server",
+    false => "MariaDB-server",
   }
 
-  $manage_package_name = $::osfamily {
+  $manage_package_name = $::osfamily ? {
     'Debian' => downcase($galera_package_name),
     default  => $galera_package_name,
+  }
+
+  $manage_config_file_require = $config_file_require ? {
+    ''      => "Package[$manage_package_name]",
+    default => $config_file_require,
   }
 
   if $package_ensure == 'absent' {
@@ -95,7 +100,7 @@ class mariadb (
 
   # Resources managed
 
-  if $mariadb::package_name {
+  if $mariadb::manage_package_name {
     package { $mariadb::manage_package_name:
       ensure   => $mariadb::manage_package_ensure,
     }
@@ -118,7 +123,7 @@ class mariadb (
       source  => $mariadb::config_file_source,
       content => $mariadb::manage_config_file_content,
       notify  => $mariadb::manage_config_file_notify,
-      require => $mariadb::config_file_require,
+      require => $mariadb::manage_config_file_require,
     }
   }
 
