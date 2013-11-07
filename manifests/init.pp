@@ -17,20 +17,22 @@ class mariadb (
   $package_name              = '',
   $package_ensure            = 'present',
 
-  $service_name              = $mariadb::params::service_name,
+  $service_name              = 'mysql',
   $service_ensure            = 'running',
   $service_enable            = true,
 
-  $config_file_path          = $mariadb::params::config_file_path,
-  $config_file_replace       = $mariadb::params::config_file_replace,
+  $config_file_path          = '',
   $config_file_require       = '',
   $config_file_notify        = 'Service[mysql]',
   $config_file_source        = undef,
   $config_file_template      = undef,
   $config_file_content       = undef,
+  $config_file_owner         = 'root',
+  $config_file_group         = 'root',
+  $config_file_mode          = '0644',
   $config_file_options_hash  = undef,
 
-  $config_dir_path           = $mariadb::params::config_dir_path,
+  $config_dir_path           = '',
   $config_dir_source         = undef,
   $config_dir_purge          = false,
   $config_dir_recurse        = true,
@@ -48,10 +50,16 @@ class mariadb (
   $tcp_port                  = undef,
   $udp_port                  = undef,
 
-  ) inherits mariadb::params {
+  ) {
 
 
   # Class variables validation and management
+  case $::osfamily {
+    'Debian','RedHat','Amazon': { }
+    default: {
+      fail("${::operatingsystem} not supported. Review init.pp for extending support.")
+    }
+  }
 
   validate_bool($galera_install)
   validate_bool($service_enable)
@@ -61,23 +69,46 @@ class mariadb (
   if $monitor_options_hash { validate_hash($monitor_options_hash) }
   if $firewall_options_hash { validate_hash($firewall_options_hash) }
 
-  $config_file_owner          = $mariadb::params::config_file_owner
-  $config_file_group          = $mariadb::params::config_file_group
-  $config_file_mode           = $mariadb::params::config_file_mode
+
 
   $manage_config_file_content = default_content($config_file_content, $config_file_template)
 
   $manage_config_file_notify = pickx($config_file_notify)
   $manage_package_ensure = pickx($package_ensure)
 
-  $galera_package_name = $galera_install ? {
-    true  => "MariaDB-Galera-server",
-    false => "MariaDB-server",
+  $galera_package_name = $version ? {
+    '5.5' => $galera_install ? {
+      true  => 'MariaDB-Galera-server',
+      false => 'MariaDB-server',
+    },
+    default => 'MariaDB-server',
   }
 
   $manage_package_name = $::osfamily ? {
     'Debian' => downcase($galera_package_name),
     default  => $galera_package_name,
+  }
+
+  $manage_config_file_path = $config_file_path ? {
+    ''  => $version ? {
+      '5.5'   => $::osfamily ? {
+        'RedHat' => '/etc/my.cnf',
+        default  => '/etc/mysql/my.cnf',
+       },
+      default => '/etc/mysql/my.cnf',
+    },
+    default => $config_file_path,
+  }
+
+  $manage_config_dir_path = $config_dir_path ? {
+    ''  => $version ? {
+      '5.5'   => $::osfamily ? {
+        'RedHat' => '/etc/my.cnf.d/',
+        default  => '/etc/mysql/',
+       },
+      default => '/etc/mysql/',
+    },
+    default => $config_dir_path,
   }
 
   $manage_config_file_require = $config_file_require ? {
@@ -99,6 +130,9 @@ class mariadb (
 
 
   # Resources managed
+  if $mariadb::galera_install {
+    include mariadb::galera
+  }
 
   if $mariadb::manage_package_name {
     package { $mariadb::manage_package_name:
@@ -116,7 +150,7 @@ class mariadb (
   if $mariadb::config_file_path {
     file { 'mariadb.conf':
       ensure  => $mariadb::config_file_ensure,
-      path    => $mariadb::config_file_path,
+      path    => $mariadb::manage_config_file_path,
       mode    => $mariadb::config_file_mode,
       owner   => $mariadb::config_file_owner,
       group   => $mariadb::config_file_group,
@@ -130,7 +164,7 @@ class mariadb (
   if $mariadb::config_dir_source {
     file { 'mariadb.dir':
       ensure  => $mariadb::config_dir_ensure,
-      path    => $mariadb::config_dir_path,
+      path    => $mariadb::manage_config_dir_path,
       source  => $mariadb::config_dir_source,
       recurse => $mariadb::config_dir_recurse,
       purge   => $mariadb::config_dir_purge,

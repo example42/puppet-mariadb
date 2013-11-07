@@ -57,6 +57,18 @@ The module provides also a generic define to manage any mariadb configuration fi
 
 ##Usage
 
+* Install version 5.5 (by default version 10.0 is installed). This changes the repos used for packages.
+
+        class { 'mariadb':
+          version => '5.5',
+        }
+
+* Install Galera engine
+
+        class { 'mariadb':
+          galera_install => true,
+        }
+
 * A common way to use this module involves the management of the main configuration file via a custom template (provided in a custom site module):
 
         class { 'mariadb':

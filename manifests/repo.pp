@@ -30,13 +30,15 @@ class mariadb::repo (
     default  => $::architecture,
   }
 
+  $osver = split($::operatingsystemrelease, '[.]')
+
   case $::osfamily {
     redhat: {
       yumrepo { 'mariadb':
         descr          => 'MariaDB',
         enabled        => '1',
         gpgcheck       => '1',
-        baseurl        => "${repo_base_url}/${repo_version}/${repo_distro}${::lsbmajdistrelease}-${repo_arch}",
+        baseurl        => "${repo_base_url}/${repo_version}/${repo_distro}${osver[0]}-${repo_arch}",
         gpgkey         => 'https://yum.mariadb.org/RPM-GPG-KEY-MariaDB',
         before         => $mariadb::manage_config_file_require,
       }
