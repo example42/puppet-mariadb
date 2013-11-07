@@ -6,8 +6,8 @@ class mariadb::repo (
   $base_url = '',
   ) {
 
-  $repo_base_url = $base_url {
-    ''   => $::osfamily {
+  $repo_base_url = $base_url ? {
+    ''   => $::osfamily ? {
       'RedHat' => 'http://yum.mariadb.org',
       'Debian' => 'http://mirror.1000mbps.com/mariadb/repo',
     }
@@ -38,6 +38,7 @@ class mariadb::repo (
         gpgcheck       => '1',
         baseurl        => "${repo_base_url}/${repo_version}/${repo_distro}${::lsbmajdistrelease}-${repo_arch}",
         gpgkey         => 'https://yum.mariadb.org/RPM-GPG-KEY-MariaDB',
+        before         => $mariadb::manage_config_file_require,
       }
     }
     debian: {
@@ -46,6 +47,7 @@ class mariadb::repo (
         repos      => 'main',
         key        => '0xcbcb082a1bb943db',
         key_server => 'keyserver.ubuntu.com',
+        before     => $mariadb::manage_config_file_require,
       }
     }
   }

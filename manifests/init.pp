@@ -143,8 +143,8 @@ class mariadb (
 
   # Extra classes
 
-  if $mariadb::dependency_class {
-    include $mariadb::dependency_class
+  if $mariadb::repo_class {
+    include $mariadb::repo_class
   }
 
   if $mariadb::my_class {
