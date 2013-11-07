@@ -5,7 +5,7 @@
 class mariadb::params {
 
   $service_name = $::osfamily ? {
-    default => 'mariadb',
+    default => 'mysql',
   }
 
   $config_file_path = $::osfamily ? {

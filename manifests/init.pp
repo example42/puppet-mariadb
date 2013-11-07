@@ -24,7 +24,7 @@ class mariadb (
   $config_file_path          = $mariadb::params::config_file_path,
   $config_file_replace       = $mariadb::params::config_file_replace,
   $config_file_require       = '',
-  $config_file_notify        = 'Service[mariadb]',
+  $config_file_notify        = 'Service[mysql]',
   $config_file_source        = undef,
   $config_file_template      = undef,
   $config_file_content       = undef,

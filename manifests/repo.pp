@@ -34,7 +34,7 @@ class mariadb::repo (
     redhat: {
       yumrepo { 'mariadb':
         descr          => 'MariaDB',
-        enabled        => 1,
+        enabled        => '1',
         gpgcheck       => '1',
         baseurl        => "${repo_base_url}/${repo_version}/${repo_distro}${::lsbmajdistrelease}-${repo_arch}",
         gpgkey         => 'https://yum.mariadb.org/RPM-GPG-KEY-MariaDB',
