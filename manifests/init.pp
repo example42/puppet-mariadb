@@ -188,7 +188,7 @@ class mariadb (
   if $mariadb::monitor_class {
     class { $mariadb::monitor_class:
       options_hash => $mariadb::monitor_options_hash,
-      scope_hash   => {}, # TODO: Find a good way to inject class' scope
+      scope_hash   => {}, # TODO: Find a good way to inject class' scope
     }
   }
 
