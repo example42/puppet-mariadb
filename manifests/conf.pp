@@ -70,7 +70,7 @@ define mariadb::conf (
   include mariadb
 
   $manage_path    = pickx($path, "${mariadb::config_dir_path}/${name}")
-  $manage_content = choose_default($content, $template)
+  $manage_content = default_content($content, $template)
   $manage_mode    = pickx($mode, $mariadb::config_file_mode)
   $manage_owner   = pickx($owner, $mariadb::config_file_owner)
   $manage_group   = pickx($group, $mariadb::config_file_group)
