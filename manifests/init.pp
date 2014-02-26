@@ -119,11 +119,13 @@ class mariadb (
   if $package_ensure == 'absent' {
     $manage_service_enable = undef
     $manage_service_ensure = stopped
+    $manage_service_require = undef
     $config_dir_ensure = absent
     $config_file_ensure = absent
   } else {
     $manage_service_enable = $service_enable
     $manage_service_ensure = $service_ensure
+    $manage_service_require = "Package[$manage_package_name]"
     $config_dir_ensure = directory
     $config_file_ensure = present
   }
@@ -144,6 +146,7 @@ class mariadb (
     service { $mariadb::service_name:
       ensure     => $mariadb::manage_service_ensure,
       enable     => $mariadb::manage_service_enable,
+      require    => $mariadb::manage_service_require,
     }
   }
 
