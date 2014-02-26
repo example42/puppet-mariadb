@@ -7,10 +7,11 @@ class mariadb::repo (
   ) {
 
   $repo_base_url = $base_url ? {
-    ''   => $::osfamily ? {
+    ''      => $::osfamily ? {
       'RedHat' => 'http://yum.mariadb.org',
       'Debian' => 'http://mirror.1000mbps.com/mariadb/repo',
-    }
+    },
+    default => $base_url,
   }
 
   $repo_distro = $::operatingsystem ? {
