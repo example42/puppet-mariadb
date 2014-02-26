@@ -142,7 +142,13 @@ class mariadb (
     }
   }
 
-  if $mariadb::service_name {
+  if $mariadb::manage_package_name and $mariadb::service_name {
+    service { $mariadb::service_name:
+      ensure     => $mariadb::manage_service_ensure,
+      enable     => $mariadb::manage_service_enable,
+      require    => Package[$mariadb::manage_package_name]
+    }
+  } elsif $mariadb::service_name {
     service { $mariadb::service_name:
       ensure     => $mariadb::manage_service_ensure,
       enable     => $mariadb::manage_service_enable,
