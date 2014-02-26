@@ -1,9 +1,26 @@
 # Class mariadb::repo
 #
-# This class installs aditional repos for mariadb
+# This class installs aditional repositories for MariaDB.
 #
+# Parameters:
+#   [*base_url*]
+#     Set the package's source URL. The URL must be without trailing
+#     slash, version, and distribution. If an empty string (default)
+#     is passed a suitable mirror is chosen, based on OS family.
+#     Default: ''
+#   [*apt_pin*]
+#     Allows to set the source pin priority for the apt source on
+#     Debian based systems.
+#     Default: undef
+#
+# Sample Hiera Configuration (JSON backend, Puppet 3+):
+# {
+#   "mariadb::repo::base_url": "http://tweedo.com/mirror/mariadb/repo",
+#   "mariadb::repo::apt_pin": "900"
+# }
 class mariadb::repo (
   $base_url = '',
+  $apt_pin = undef,
   ) {
 
   $repo_base_url = $base_url ? {
@@ -51,6 +68,7 @@ class mariadb::repo (
         key        => '1BB943DB',
         key_server => 'keyserver.ubuntu.com',
         before     => $mariadb::manage_config_file_require,
+        pin        => $apt_pin,
       }
     }
   }
