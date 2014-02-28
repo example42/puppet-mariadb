@@ -6,10 +6,18 @@
 #
 # == Parameters
 #
+# [*root_password*]
+#   The mysql password of the root user.
+#   If blank, no password is set
+#   If 'auto' a random (weak) password is generated
+#
 # Refer to https://github.com/stdmod for official documentation
 # on the stdmod parameters used
 #
 class mariadb (
+
+  $root_password             = '',
+  $root_password_salt        = 's4lt3d',
 
   $galera_install            = false,
   $version                   = '10.0',
@@ -133,6 +141,15 @@ class mariadb (
     $config_file_ensure = present
   }
 
+  $random_password = fqdn_rand(100000000000,$root_password_salt)
+
+  $real_root_password = $root_password ? {
+    ''      => '',
+    auto    => $random_password,
+    default => $root_password,
+  }
+
+  if $real_root_password != '' { include mariadb::password }
 
   # Resources managed
   if $mariadb::galera_install {
