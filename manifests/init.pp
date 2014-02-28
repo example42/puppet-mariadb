@@ -23,7 +23,7 @@ class mariadb (
 
   $config_file_path          = '',
   $config_file_require       = '',
-  $config_file_notify        = 'Service[mysql]',
+  $config_file_notify        = 'class_default',
   $config_file_source        = undef,
   $config_file_template      = undef,
   $config_file_content       = undef,
@@ -69,11 +69,14 @@ class mariadb (
   if $monitor_options_hash { validate_hash($monitor_options_hash) }
   if $firewall_options_hash { validate_hash($firewall_options_hash) }
 
-
-
   $manage_config_file_content = default_content($config_file_content, $config_file_template)
 
-  $manage_config_file_notify = pickx($config_file_notify)
+  $manage_config_file_notify  = $config_file_notify ? {
+    'class_default' => 'Service[mysql]',
+    ''              => undef,
+    default         => $config_file_notify,
+  }
+
   $manage_package_ensure = pickx($package_ensure)
 
   $galera_package_name = $version ? {
@@ -94,7 +97,7 @@ class mariadb (
       '5.5'   => $::osfamily ? {
         'RedHat' => '/etc/my.cnf',
         default  => '/etc/mysql/my.cnf',
-       },
+      },
       default => '/etc/mysql/my.cnf',
     },
     default => $config_file_path,
@@ -105,7 +108,7 @@ class mariadb (
       '5.5'   => $::osfamily ? {
         'RedHat' => '/etc/my.cnf.d/',
         default  => '/etc/mysql/',
-       },
+      },
       default => '/etc/mysql/',
     },
     default => $config_dir_path,
@@ -150,7 +153,7 @@ class mariadb (
     }
   }
 
-  if $mariadb::config_file_path {
+  if $mariadb::manage_config_file_path {
     file { 'mariadb.conf':
       ensure  => $mariadb::config_file_ensure,
       path    => $mariadb::manage_config_file_path,
