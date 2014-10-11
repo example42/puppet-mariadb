@@ -87,12 +87,9 @@ class mariadb (
 
   $manage_package_ensure = pickx($package_ensure)
 
-  $galera_package_name = $version ? {
-    '5.5' => $galera_install ? {
-      true  => 'MariaDB-Galera-server',
-      false => 'MariaDB-server',
-    },
-    default => 'MariaDB-server',
+  $galera_package_name = $galera_install ? {
+    true  => 'MariaDB-Galera-server',
+    false => 'MariaDB-server',
   }
 
   $manage_package_name = $::osfamily ? {
