@@ -65,8 +65,8 @@ class mariadb::repo (
       apt::source { 'mariadb':
         location   => "${repo_base_url}/${repo_version}/${repo_distro}",
         repos      => 'main',
-        key        => '1BB943DB',
-        key_server => 'keyserver.ubuntu.com',
+        key        => '199369E5404BD5FC7D2FE43BCBCB082A1BB943DB',
+        key_server => 'hkp://keyserver.ubuntu.com:80',
         before     => $mariadb::manage_config_file_require,
         pin        => $apt_pin,
       }
