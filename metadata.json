@@ -8,6 +8,10 @@
     {
       "name": "example42/puppi",
       "version_requirement": ">=2.0.0"
+    },
+    {
+      "name": "puppet/extlib",
+      "version_requirement": ">=0.1.0"
     }
   ],
   "types": [
