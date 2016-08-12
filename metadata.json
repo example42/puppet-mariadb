@@ -1,6 +1,6 @@
 {
   "name": "example42-mariadb",
-  "version": "2.0.17",
+  "version": "2.0.18",
   "summary": "Puppet module for mariadb",
   "author": "Alessandro Franceschi",
   "description": "This module installs and manages mariadb. Check README for details.",
