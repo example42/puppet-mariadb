@@ -201,10 +201,6 @@ class mariadb (
     include $mariadb::repo_class
   }
 
-  if $mariadb::my_class {
-    include $mariadb::my_class
-  }
-
   if $mariadb::monitor_class {
     class { $mariadb::monitor_class:
       options_hash => $mariadb::monitor_options_hash,
